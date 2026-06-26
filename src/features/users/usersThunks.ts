@@ -35,7 +35,8 @@ export const fetchUserById = createAsyncThunk<User, string, { rejectValue: strin
     'user/fetchUserById',
     async (id, {rejectWithValue}) => {
         try {
-            const response = await instance.get<User>(`/users/:${id}`);
+            const response = await instance.get<User>(`/users/${id}`);
+            console.log(response);
             return response.data;
         } catch (error: any) {
             return rejectWithValue(error.message || 'Не удалось загрузить данные пользователя')

@@ -14,7 +14,7 @@ import {
     Avatar,
     Button,
     Typography,
-    Box,
+    Box, CircularProgress, Alert,
 } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
 
@@ -22,14 +22,37 @@ export const UsersPage: FC = () => {
     const dispatch = useAppDispatch();
     const { items, isLoading, error, currentPage, totalCount } = useAppSelector(state => state.users);
 
-    const totalPages = Math.ceil(totalCount/5);
+    const usersLimit = 5;
+    const totalPages = Math.ceil(totalCount / usersLimit);
 
     useEffect(() => {
-        dispatch(fetchUsers({ page: currentPage, limit: 5 }));
+        dispatch(fetchUsers({ page: currentPage, limit: usersLimit }));
     },[currentPage, dispatch]);
 
     const handleChange = (_event: ChangeEvent<unknown>, pageNumber: number) => {
         dispatch(setCurrentPage(pageNumber));
+    }
+
+    if (isLoading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <CircularProgress aria-label="Loading…" />
+            </Box>
+        )
+    }
+
+    if (error) {
+        return (
+            <Box sx={{m: 2}}>
+                <Alert severity='error' action={
+                    <Button color="inherit" size="small"
+                            onClick={() => dispatch(fetchUsers({page: currentPage, limit: usersLimit}))}>
+                        Повторить
+                    </Button>}>
+                    Произошла ошибка: {error}
+                </Alert>
+            </Box>
+        )
     }
     return (
         <Box sx={{p: 3}}>
