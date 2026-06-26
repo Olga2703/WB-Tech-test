@@ -1,5 +1,5 @@
 import type {User} from "../../types/user.ts";
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import {createUser, deleteUser, fetchUserById, fetchUsers, updateUser} from "./usersThunks.ts";
 
 interface UsersState {
@@ -82,7 +82,7 @@ const usersSlice = createSlice({
             })
             .addCase(updateUser.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload || 'Не удалось обновить данные пользователя'ж
+                state.error = action.payload || 'Не удалось обновить данные пользователя';
             })
             .addCase(deleteUser.pending, (state) => {
                 state.isLoading = true;

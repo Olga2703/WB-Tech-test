@@ -18,11 +18,11 @@ export const fetchUsers = createAsyncThunk<FetchUsersResponse, FetchUsersArgs, {
     async ({page, limit}, {rejectWithValue}) => {
         try {
             const response = await instance.get<User[]>(`/users?page=${page}&limit=${limit}`);
-            const totalCount = Number(response.headers['x-total-count']) || 0;
+            const totalResponse = await instance.get<User[]>('/users');
 
             return {
                 items: response.data,
-                totalCount: totalCount,
+                totalCount: totalResponse.data.length,
             };
         } catch (error: any) {
             return rejectWithValue(error.message || 'Не удалось загрузить пользователей')
