@@ -17,3 +17,6 @@
 * **Backend Simulation:** MockAPI.io
 
 ---
+
+### 🔗 Демо проекта
+👉 **[wb-tech-test-mauve.vercel.app](https://wb-tech-test-mauve.vercel.app)**
