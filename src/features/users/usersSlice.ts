@@ -2,7 +2,7 @@ import type {User} from "../../types/user.ts";
 import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import {createUser, deleteUser, fetchUserById, fetchUsers, updateUser} from "./usersThunks.ts";
 
-interface UsersState {
+export interface UsersState {
     items: User[];
     isLoading: boolean;
     error: string | null;
@@ -76,7 +76,7 @@ const usersSlice = createSlice({
             .addCase(updateUser.fulfilled, (state, action) => {
                 state.isLoading = false;
                 const index = state.items.findIndex((item) => item.id === action.payload.id);
-                if (index) {
+                if (index !== -1) {
                     state.items[index] = action.payload;
                 }
             })
@@ -89,9 +89,14 @@ const usersSlice = createSlice({
                 state.error = null;
             })
             .addCase(deleteUser.fulfilled, (state, action) => {{
+                state.isLoading = false;
                 state.items = state.items.filter((item) => item.id !== action.payload);
                 state.totalCount -= 1;
-            }});
+            }})
+            .addCase(deleteUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload || 'Не удалось удалить пользователя';
+            });
     }
 });
 

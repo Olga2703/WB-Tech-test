@@ -32,8 +32,8 @@ export const UserModal: FC<UserModalProps> = ({open, onClose, onSave, userToEdit
     };
 
     return (
-        <Dialog open={open} onClose={onclose} maxWidth="sm" fullWdth>
-            <DialogTitle sx={{fontWeoght: 700}}>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{fontWeight: 700}}>
                 {userToEdit ? 'Редактировать пользователя' : 'Создать нового пользователя'}
             </DialogTitle>
 
