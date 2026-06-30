@@ -1,6 +1,6 @@
-import { useEffect, type FC, type ChangeEvent } from 'react';
+import React, {useEffect, type FC, type ChangeEvent, useState} from 'react';
 import { useAppDispatch, useAppSelector } from '../app/store';
-import { fetchUsers } from '../features/users/usersThunks';
+import {createUser, fetchUsers, updateUser} from '../features/users/usersThunks';
 import { setCurrentPage } from '../features/users/usersSlice';
 import { Link } from 'react-router-dom';
 import {
@@ -17,8 +17,13 @@ import {
     Box, CircularProgress, Alert,
 } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
+import AddIcon from '@mui/icons-material/Add';
+import {UserModal} from "../components/UserModal.tsx";
 
 export const UsersPage: FC = () => {
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<any | null>(null);
     const dispatch = useAppDispatch();
     const { items, isLoading, error, currentPage, totalCount } = useAppSelector(state => state.users);
 
@@ -32,6 +37,34 @@ export const UsersPage: FC = () => {
     const handleChange = (_event: ChangeEvent<unknown>, pageNumber: number) => {
         dispatch(setCurrentPage(pageNumber));
     }
+
+    const handleCreateOpen = () => {
+        setSelectedUser(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEditOpen = (user: any) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveUser = async (userData: { name: string; email: string }) => {
+        if (selectedUser) {
+            try {
+                await dispatch(updateUser({ id: selectedUser.id, data: userData })).unwrap();
+                dispatch(fetchUsers({ page: currentPage, limit: usersLimit }));
+            } catch (err) {
+                console.error('Не удалось обновить пользователя:', err);
+            }
+        } else {
+            try {
+                await dispatch(createUser(userData)).unwrap();
+                dispatch(fetchUsers({ page: currentPage, limit: usersLimit }));
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
 
     if (isLoading) {
         return (
@@ -56,6 +89,16 @@ export const UsersPage: FC = () => {
     }
     return (
         <Box sx={{p: 3}}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddIcon />}
+                    onClick={handleCreateOpen}
+                >
+                    Добавить пользователя
+                </Button>
+            </Box>
             <Typography variant="h3" sx={{mb: 2}}>Список пользователей</Typography>
             <TableContainer component={Paper} sx={{mb: 2}}>
                 <Table>
@@ -76,9 +119,12 @@ export const UsersPage: FC = () => {
                                         <Avatar src={user.avatar} alt={user.name} sx={{ width: 40, height: 40}} />
                                     </TableCell>
                                     <TableCell>{user.name}</TableCell>
-                                    <TableCell>
+                                    <TableCell sx={{display: 'flex', gap: 2}}>
                                         <Button component={Link} to={`/users/${user.id}`} variant="outlined" >
                                             Просмотр
+                                        </Button>
+                                        <Button onClick={() => handleEditOpen(user)} variant="contained" >
+                                            Редактировать
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -87,7 +133,12 @@ export const UsersPage: FC = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-
+            <UserModal
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSaveUser}
+                userToEdit={selectedUser}
+            />
             <Box sx={{display: 'flex', justifyContent: 'center'}}>
                 <Pagination count={totalPages} page={currentPage} onChange={handleChange}/>
             </Box>
